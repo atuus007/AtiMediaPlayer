@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="512.0" prefWidth="678.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.abstergo.ati.mediaplayerjava.FXMLController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="mnOpen" mnemonicParsing="false" onAction="#openMenuAction" text="Open" />
+                  <MenuItem mnemonicParsing="false" text="Close" />
+                  <MenuItem fx:id="mnOpen1" mnemonicParsing="false" onAction="#openMenuAction" text="Open" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <MediaView fx:id="mvPlayer" fitHeight="200.0" fitWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
+   <right>
+      <ListView prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
+   </right>
+   <bottom>
+      <VBox prefHeight="106.0" prefWidth="678.0" BorderPane.alignment="CENTER">
+         <children>
+            <Slider fx:id="slTimeSlider" />
+            <SplitPane dividerPositions="0.5" nodeOrientation="LEFT_TO_RIGHT" prefHeight="176.0" prefWidth="678.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="368.0">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" layoutX="29.0" layoutY="41.0" prefHeight="55.0" prefWidth="368.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <Button fx:id="btnPlay" contentDisplay="TOP" graphicTextGap="6.0" mnemonicParsing="false" onAction="#onPlay" text="Play" />
+                              <Button fx:id="btnPause" mnemonicParsing="false" onAction="#onPausePlay" text="Pause" />
+                              <Button fx:id="btnStop" mnemonicParsing="false" onAction="#onStopPlay" text="Stop" />
+                              <Button fx:id="btnSlow" mnemonicParsing="false" onAction="#onSlowerPlay" text="Slow" />
+                              <Button fx:id="btnFast" mnemonicParsing="false" onAction="#onFasterPlay" text="Fast" />
+                              <Button fx:id="btnRestart" mnemonicParsing="false" onAction="#onRestartPlay" text="Restart" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="387.0">
+                     <children>
+                        <Slider fx:id="volumeSlide" layoutX="151.0" layoutY="14.0" />
+                        <Label fx:id="lbSound" layoutX="51.0" layoutY="13.0" prefHeight="17.0" prefWidth="64.0" />
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
+            <AnchorPane prefHeight="32.0" prefWidth="678.0">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <children>
+                  <HBox prefHeight="100.0" prefWidth="678.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label fx:id="timerLabel">
+                           <HBox.margin>
+                              <Insets right="30.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lbStatus" />
+                     </children>
+                  </HBox>
+               </children></AnchorPane>
+         </children>
+      </VBox>
+   </bottom>
+</BorderPane>
