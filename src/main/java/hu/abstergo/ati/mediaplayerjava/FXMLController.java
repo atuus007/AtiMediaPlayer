@@ -22,6 +22,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.util.*;
+import javafx.beans.binding.Bindings;
 
 public class FXMLController implements Initializable {
     
@@ -136,6 +137,15 @@ public class FXMLController implements Initializable {
             mvPlayer.setMediaPlayer(mp);
             mp.setAutoPlay(true);
             volumeSlide.setValue(mp.getVolume() * 100);
+            mvPlayer.fitWidthProperty().bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "width"));
+            mvPlayer.fitHeightProperty().bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "height"));
+            System.out.println(mvPlayer.getFitHeight()+" "+mvPlayer.getFitWidth());
+            //DoubleProperty width = mvPlayer.fitWidthProperty();
+            //DoubleProperty height = mvPlayer.fitHeightProperty();
+            //width.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "width"));
+           // height.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "height"));
+            //System.out.println(width.toString());
+            //System.out.println(height.toString());
             mp.setOnReady(new Runnable() {
                 @Override
                 public void run() {
@@ -183,12 +193,13 @@ public class FXMLController implements Initializable {
                 @Override
                 public void run() {
                     Duration jelenlegiIdo = mp.getCurrentTime();
+                    double durationToDouble=duration.toMillis();
                     timerLabel.setText(formatTime(jelenlegiIdo, duration));
-                    System.out.println(jelenlegiIdo);
+                   
                     
                     slTimeSlider.setDisable(duration.isUnknown());
                     if (!slTimeSlider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slTimeSlider.isValueChanging()) {
-                        slTimeSlider.setValue(jelenlegiIdo.divide(duration).toMillis() * 100.0);
+                        slTimeSlider.setValue(jelenlegiIdo.divide(durationToDouble).toMillis() * 100.0);
                     }
                 }
             });

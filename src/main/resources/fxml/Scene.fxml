@@ -29,9 +29,6 @@
         </menus>
       </MenuBar>
    </top>
-   <center>
-      <MediaView fx:id="mvPlayer" fitHeight="200.0" fitWidth="200.0" BorderPane.alignment="CENTER" />
-   </center>
    <right>
       <ListView prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
    </right>
@@ -82,4 +79,14 @@
          </children>
       </VBox>
    </bottom>
+   <center>
+      <MediaView fx:id="mvPlayer" fitHeight="300.0" fitWidth="300.0" BorderPane.alignment="CENTER">
+         <viewport>
+            <Rectangle2D />
+         </viewport>
+         <BorderPane.margin>
+            <Insets top="20.0" />
+         </BorderPane.margin>
+      </MediaView>
+   </center>
 </BorderPane>
