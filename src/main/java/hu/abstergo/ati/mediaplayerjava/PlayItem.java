@@ -10,5 +10,9 @@ package hu.abstergo.ati.mediaplayerjava;
  * @author Ati
  */
 public class PlayItem {
+    private String title;
+    private String author;
+    private String genre;
+    private String extension;
     
 }

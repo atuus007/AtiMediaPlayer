@@ -23,9 +23,12 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.util.*;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableMap;
+import javafx.scene.control.MenuBar;
+import javafx.scene.layout.StackPane;
 
 public class FXMLController implements Initializable {
-    
+
     @FXML
     private Button btnStop;
     @FXML
@@ -48,10 +51,10 @@ public class FXMLController implements Initializable {
     private Label lbStatus;
     @FXML
     private MediaView mvPlayer;
-    
+
     @FXML
     private Button btnPause;
-    
+
     @FXML
     private Slider slTimeSlider;
     private long timeStamp;
@@ -63,27 +66,31 @@ public class FXMLController implements Initializable {
     private FileChooser fc;
     @FXML
     private Label timerLabel;
-    
+    @FXML
+    private MenuBar menuBar;
+    @FXML
+    private StackPane mediaHolder;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         lbSound.setText("100.0");
         fc = new FileChooser();
-        
+
         fc.setInitialDirectory(new File("E:\\Image\\Soundtrack\\Assasins Creed 2\\Disc 1"));
         fc.getExtensionFilters()
                 .addAll(new FileChooser.ExtensionFilter("Music files", "*.mp3"),
                         new FileChooser.ExtensionFilter("Video Files", "*.mp4")
                 );
-        
+
     }
-    
+
     @FXML
     private void onStopPlay(ActionEvent event) {
         mp.seek(mp.getTotalDuration());
         mp.stop();
-        
+
     }
-    
+
     @FXML
     private void onPlay(ActionEvent event) {
         Status status = mp.getStatus();
@@ -91,67 +98,87 @@ public class FXMLController implements Initializable {
             // don't do anything in these states
             return;
         }
-        
+
         mvPlayer.getMediaPlayer().setRate(1);
         mvPlayer.getMediaPlayer().play();
-        
+
     }
-    
+
     @FXML
     private void onPausePlay(ActionEvent event) {
-        
+
         mvPlayer.getMediaPlayer().pause();
-        
+
     }
-    
+
     @FXML
     private void onSlowerPlay(ActionEvent event) {
         mvPlayer.getMediaPlayer().setRate(.5);
     }
-    
+
     @FXML
     private void onRestartPlay(ActionEvent event) {
         mvPlayer.getMediaPlayer().seek(mp.getStartTime());
         mvPlayer.getMediaPlayer().play();
     }
-    
+
     @FXML
     private void onFasterPlay(ActionEvent event) {
         mvPlayer.getMediaPlayer().setRate(2);
     }
-    
+
     @FXML
     private void openMenuAction(ActionEvent event) {
-        
+
         File selectedFile = fc.showOpenDialog(null);
         if (mvPlayer.getMediaPlayer() != null) {
-            
+
             mvPlayer.getMediaPlayer().dispose();
-            
+
         }
         if (selectedFile != null) {
             // mp.currentTimeProperty()
+           
             path = selectedFile.getAbsolutePath();
             me = new Media(new File(path).toURI().toString());
             mp = new MediaPlayer(me);
             mvPlayer.setMediaPlayer(mp);
             mp.setAutoPlay(true);
             volumeSlide.setValue(mp.getVolume() * 100);
-            mvPlayer.fitWidthProperty().bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "width"));
-            mvPlayer.fitHeightProperty().bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "height"));
-            System.out.println(mvPlayer.getFitHeight()+" "+mvPlayer.getFitWidth());
-            //DoubleProperty width = mvPlayer.fitWidthProperty();
-            //DoubleProperty height = mvPlayer.fitHeightProperty();
-            //width.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "width"));
-           // height.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "height"));
+            /*
+            DoubleProperty width = mvPlayer.fitWidthProperty();
+            DoubleProperty height = mvPlayer.fitHeightProperty();
+            width.bind(Bindings.selectDouble(mediaHolder.sceneProperty(), "width"));
+            height.bind(Bindings.selectDouble(mediaHolder.sceneProperty(), "height"));
+            // mvPlayer.setFitHeight(mediaHolder.getHeight());
+            // mvPlayer.setFitWidth(mediaHolder.getWidth());
+            //mvPlayer.setPreserveRatio(true);*/
+            
+            //System.out.println(mvPlayer.getScaleX() + " " + mvPlayer.getScaleY());
+            //System.out.println(mvPlayer.getX() + " " + mvPlayer.getY());
+                      /*DoubleProperty width = mvPlayer.fitWidthProperty();
+            DoubleProperty height = mvPlayer.fitHeightProperty();
+            width.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "width"));
+            height.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "height"));
+            
+            mediaHolder.getChildren().add(mvPlayer);*/
+            mediaHolder.getChildren().add(mvPlayer);
+            System.out.println(mediaHolder.getChildren());
             //System.out.println(width.toString());
             //System.out.println(height.toString());
+
             mp.setOnReady(new Runnable() {
+                //ObservableMap<String, Object> metadata = me.getMetadata();
                 @Override
                 public void run() {
                     duration = mp.getMedia().getDuration();
                     update();
+                    //for(String key: metadata.keySet()){
+                    //    System.out.println(key+" = "+metadata.get(key));
+                    //}
+                   // mediaHolder.set
                 }
+               
             });
             mp.currentTimeProperty().addListener(new InvalidationListener() {
                 @Override
@@ -175,28 +202,27 @@ public class FXMLController implements Initializable {
                     if (volumeSlide.isValueChanging()) {
                         mvPlayer.getMediaPlayer().setVolume(volumeSlide.getValue() / 100);
                         double volume = mvPlayer.getMediaPlayer().getVolume() * 100;
-                        
+
                         lbSound.setText(Integer.toString((int) volume));
                     }
-                    
+
                 }
             });
-            
+
         } else {
             //lbStatus.setText("Nem ervenyes file");
         }
     }
-    
+
     public void update() {
         if (slTimeSlider != null) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
                     Duration jelenlegiIdo = mp.getCurrentTime();
-                    double durationToDouble=duration.toMillis();
+                    double durationToDouble = duration.toMillis();
                     timerLabel.setText(formatTime(jelenlegiIdo, duration));
-                   
-                    
+
                     slTimeSlider.setDisable(duration.isUnknown());
                     if (!slTimeSlider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slTimeSlider.isValueChanging()) {
                         slTimeSlider.setValue(jelenlegiIdo.divide(durationToDouble).toMillis() * 100.0);
@@ -215,7 +241,7 @@ public class FXMLController implements Initializable {
         int elapsedMinutes = intElapsed / 60;
         int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
                 - elapsedMinutes * 60;
-        
+
         if (duration.greaterThan(Duration.ZERO)) {
             int intDuration = (int) Math.floor(duration.toSeconds());
             int durationHours = intDuration / (60 * 60);
@@ -242,5 +268,5 @@ public class FXMLController implements Initializable {
                     elapsedSeconds);
         }
     }
-    
+
 }

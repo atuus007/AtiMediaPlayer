@@ -12,7 +12,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="512.0" prefWidth="678.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.abstergo.ati.mediaplayerjava.FXMLController">
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
+      <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
@@ -80,13 +80,14 @@
       </VBox>
    </bottom>
    <center>
-      <MediaView fx:id="mvPlayer" fitHeight="300.0" fitWidth="300.0" BorderPane.alignment="CENTER">
-         <viewport>
-            <Rectangle2D />
-         </viewport>
-         <BorderPane.margin>
-            <Insets top="20.0" />
-         </BorderPane.margin>
-      </MediaView>
+      <StackPane BorderPane.alignment="CENTER">
+         <children>
+            <MediaView fx:id="mvPlayer" fitHeight="300.0" fitWidth="300.0">
+               <viewport>
+                  <Rectangle2D />
+               </viewport>
+            </MediaView>
+         </children>
+      </StackPane>
    </center>
 </BorderPane>
