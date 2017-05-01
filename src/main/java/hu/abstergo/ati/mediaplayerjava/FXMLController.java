@@ -23,7 +23,7 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.util.*;
 import javafx.beans.binding.Bindings;
-import javafx.collections.ObservableMap;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.StackPane;
 
@@ -46,17 +46,24 @@ public class FXMLController implements Initializable {
     @FXML
     private MenuItem mnOpen;
     @FXML
-    private MenuItem mnOpen1;
-    @FXML
     private Label lbStatus;
     @FXML
     private MediaView mvPlayer;
-
     @FXML
     private Button btnPause;
-
     @FXML
     private Slider slTimeSlider;
+    @FXML
+    private Label timerLabel;
+    @FXML
+    private MenuBar menuBar;
+    @FXML
+    private StackPane mediaHolder;
+    @FXML
+    private Button btnOpenPlaylist;
+    @FXML
+    private ListView<?> lvPlayList;
+    
     private long timeStamp;
     private Duration duration;
     private DoubleProperty width, height;
@@ -64,12 +71,8 @@ public class FXMLController implements Initializable {
     private Media me;
     public String path;
     private FileChooser fc;
-    @FXML
-    private Label timerLabel;
-    @FXML
-    private MenuBar menuBar;
-    @FXML
-    private StackPane mediaHolder;
+    private boolean playlistOpen=false;
+  
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -81,7 +84,6 @@ public class FXMLController implements Initializable {
                 .addAll(new FileChooser.ExtensionFilter("Music files", "*.mp3"),
                         new FileChooser.ExtensionFilter("Video Files", "*.mp4")
                 );
-
     }
 
     @FXML
@@ -98,17 +100,15 @@ public class FXMLController implements Initializable {
             // don't do anything in these states
             return;
         }
-
-        mvPlayer.getMediaPlayer().setRate(1);
-        mvPlayer.getMediaPlayer().play();
-
+        if (status == Status.PAUSED || status == Status.READY || status == Status.STOPPED) {
+            mvPlayer.getMediaPlayer().setRate(1);
+            mvPlayer.getMediaPlayer().play();
+        }
     }
 
     @FXML
     private void onPausePlay(ActionEvent event) {
-
         mvPlayer.getMediaPlayer().pause();
-
     }
 
     @FXML
@@ -129,56 +129,35 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void openMenuAction(ActionEvent event) {
-
         File selectedFile = fc.showOpenDialog(null);
         if (mvPlayer.getMediaPlayer() != null) {
-
             mvPlayer.getMediaPlayer().dispose();
-
         }
         if (selectedFile != null) {
             // mp.currentTimeProperty()
-           
             path = selectedFile.getAbsolutePath();
             me = new Media(new File(path).toURI().toString());
             mp = new MediaPlayer(me);
             mvPlayer.setMediaPlayer(mp);
             mp.setAutoPlay(true);
+            mvPlayer.setPreserveRatio(true);
+            mvPlayer.autosize();
             volumeSlide.setValue(mp.getVolume() * 100);
-            /*
-            DoubleProperty width = mvPlayer.fitWidthProperty();
-            DoubleProperty height = mvPlayer.fitHeightProperty();
-            width.bind(Bindings.selectDouble(mediaHolder.sceneProperty(), "width"));
-            height.bind(Bindings.selectDouble(mediaHolder.sceneProperty(), "height"));
-            // mvPlayer.setFitHeight(mediaHolder.getHeight());
-            // mvPlayer.setFitWidth(mediaHolder.getWidth());
-            //mvPlayer.setPreserveRatio(true);*/
-            
-            //System.out.println(mvPlayer.getScaleX() + " " + mvPlayer.getScaleY());
-            //System.out.println(mvPlayer.getX() + " " + mvPlayer.getY());
-                      /*DoubleProperty width = mvPlayer.fitWidthProperty();
-            DoubleProperty height = mvPlayer.fitHeightProperty();
-            width.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "width"));
-            height.bind(Bindings.selectDouble(mvPlayer.sceneProperty(), "height"));
-            
-            mediaHolder.getChildren().add(mvPlayer);*/
-            mediaHolder.getChildren().add(mvPlayer);
-            System.out.println(mediaHolder.getChildren());
-            //System.out.println(width.toString());
-            //System.out.println(height.toString());
-
+            //mvPlayer.fitWidthProperty().bind(mvPlayer.getScene().widthProperty());
+            //mvPlayer.fitHeightProperty().bind(mvPlayer.getScene().heightProperty());
+            mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
+            mvPlayer.fitHeightProperty().bind(mediaHolder.heightProperty());
+            mediaHolder.getScene().widthProperty();
+            System.out.println(mvPlayer.getFitHeight() + " " + mvPlayer.getFitWidth());
+            System.out.println(mediaHolder.getHeight() + " " + mediaHolder.getWidth());
+            System.out.println(mediaHolder.heightProperty()+" " +  mediaHolder.widthProperty());
+            System.out.println(mediaHolder.getScene().heightProperty()+" " +  mediaHolder.getScene().widthProperty());
             mp.setOnReady(new Runnable() {
-                //ObservableMap<String, Object> metadata = me.getMetadata();
                 @Override
                 public void run() {
                     duration = mp.getMedia().getDuration();
                     update();
-                    //for(String key: metadata.keySet()){
-                    //    System.out.println(key+" = "+metadata.get(key));
-                    //}
-                   // mediaHolder.set
                 }
-               
             });
             mp.currentTimeProperty().addListener(new InvalidationListener() {
                 @Override
@@ -191,8 +170,6 @@ public class FXMLController implements Initializable {
                 public void invalidated(Observable observable) {
                     if (slTimeSlider.isValueChanging()) {
                         mp.seek(duration.multiply(slTimeSlider.getValue() / 100));
-
-                        // lbStatus.setText("fasdfas " + duration.multiply(slTimeSlider.getValue()));
                     }
                 }
             });
@@ -202,15 +179,10 @@ public class FXMLController implements Initializable {
                     if (volumeSlide.isValueChanging()) {
                         mvPlayer.getMediaPlayer().setVolume(volumeSlide.getValue() / 100);
                         double volume = mvPlayer.getMediaPlayer().getVolume() * 100;
-
                         lbSound.setText(Integer.toString((int) volume));
                     }
-
                 }
             });
-
-        } else {
-            //lbStatus.setText("Nem ervenyes file");
         }
     }
 
@@ -222,7 +194,6 @@ public class FXMLController implements Initializable {
                     Duration jelenlegiIdo = mp.getCurrentTime();
                     double durationToDouble = duration.toMillis();
                     timerLabel.setText(formatTime(jelenlegiIdo, duration));
-
                     slTimeSlider.setDisable(duration.isUnknown());
                     if (!slTimeSlider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slTimeSlider.isValueChanging()) {
                         slTimeSlider.setValue(jelenlegiIdo.divide(durationToDouble).toMillis() * 100.0);
@@ -239,8 +210,7 @@ public class FXMLController implements Initializable {
             intElapsed -= elapsedHours * 60 * 60;
         }
         int elapsedMinutes = intElapsed / 60;
-        int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
-                - elapsedMinutes * 60;
+        int elapsedSeconds = intElapsed - elapsedHours * 60 * 60 - elapsedMinutes * 60;
 
         if (duration.greaterThan(Duration.ZERO)) {
             int intDuration = (int) Math.floor(duration.toSeconds());
@@ -266,6 +236,20 @@ public class FXMLController implements Initializable {
         } else {
             return String.format("%02d:%02d", elapsedMinutes,
                     elapsedSeconds);
+        }
+    }
+
+    @FXML
+    private void onPlaylistOpen(ActionEvent event) {
+        if(playlistOpen){
+            btnOpenPlaylist.setText("Close Playlist");
+            playlistOpen=false;
+            lvPlayList.setPrefWidth(100);
+           
+        }else{
+            btnOpenPlaylist.setText("Open Playlist");
+            playlistOpen=true;
+            lvPlayList.setPrefWidth(0);
         }
     }
 

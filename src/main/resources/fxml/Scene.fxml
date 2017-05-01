@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="512.0" prefWidth="678.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.abstergo.ati.mediaplayerjava.FXMLController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.abstergo.ati.mediaplayerjava.FXMLController">
    <top>
       <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
         <menus>
@@ -18,7 +18,6 @@
             <items>
               <MenuItem fx:id="mnOpen" mnemonicParsing="false" onAction="#openMenuAction" text="Open" />
                   <MenuItem mnemonicParsing="false" text="Close" />
-                  <MenuItem fx:id="mnOpen1" mnemonicParsing="false" onAction="#openMenuAction" text="Open" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -30,7 +29,7 @@
       </MenuBar>
    </top>
    <right>
-      <ListView prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
+      <ListView fx:id="lvPlayList" prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
    </right>
    <bottom>
       <VBox prefHeight="106.0" prefWidth="678.0" BorderPane.alignment="CENTER">
@@ -48,14 +47,15 @@
                               <Button fx:id="btnSlow" mnemonicParsing="false" onAction="#onSlowerPlay" text="Slow" />
                               <Button fx:id="btnFast" mnemonicParsing="false" onAction="#onFasterPlay" text="Fast" />
                               <Button fx:id="btnRestart" mnemonicParsing="false" onAction="#onRestartPlay" text="Restart" />
+                              <Button fx:id="btnOpenPlaylist" mnemonicParsing="false" onAction="#onPlaylistOpen" text="Open Playlist" />
                            </children>
                         </HBox>
                      </children>
                   </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="387.0">
                      <children>
-                        <Slider fx:id="volumeSlide" layoutX="151.0" layoutY="14.0" />
-                        <Label fx:id="lbSound" layoutX="51.0" layoutY="13.0" prefHeight="17.0" prefWidth="64.0" />
+                        <Slider fx:id="volumeSlide" layoutX="242.0" layoutY="30.0" />
+                        <Label fx:id="lbSound" layoutX="166.0" layoutY="29.0" prefHeight="17.0" prefWidth="64.0" />
                      </children>
                   </AnchorPane>
               </items>
@@ -80,7 +80,7 @@
       </VBox>
    </bottom>
    <center>
-      <StackPane BorderPane.alignment="CENTER">
+      <StackPane fx:id="mediaHolder" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
             <MediaView fx:id="mvPlayer" fitHeight="300.0" fitWidth="300.0">
                <viewport>
