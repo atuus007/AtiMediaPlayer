@@ -22,12 +22,12 @@ import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.util.*;
-import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
 public class FXMLController implements Initializable {
@@ -74,22 +74,19 @@ public class FXMLController implements Initializable {
     private Media me;
     public String path;
     private FileChooser fc;
-    private PlayItemBuilderImpl builder;
+
     private boolean playlistOpen = false;
-    @FXML
-    private ImageView imgCover;
+    private final List<PlayItem> listOfPlayItems = new ArrayList<>();
+    private ObservableList<PlayItem> obPlayList;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         lbSound.setText("100.0");
         fc = new FileChooser();
-
-        fc.setInitialDirectory(new File("E:\\Image\\Soundtrack\\Assasins Creed 2\\Disc 1"));
         fc.getExtensionFilters()
                 .addAll(new FileChooser.ExtensionFilter("Music files", "*.mp3"),
                         new FileChooser.ExtensionFilter("Video Files", "*.mp4")
                 );
-        builder = new PlayItemBuilderImpl();
     }
 
     @FXML
@@ -140,7 +137,7 @@ public class FXMLController implements Initializable {
             mvPlayer.getMediaPlayer().dispose();
         }
         if (selectedFile != null) {
-            // mp.currentTimeProperty()
+       
             path = selectedFile.getAbsolutePath();
             me = new Media(new File(path).toURI().toString());
             mp = new MediaPlayer(me);
@@ -153,25 +150,42 @@ public class FXMLController implements Initializable {
             mvPlayer.fitHeightProperty().bind(mediaHolder.heightProperty());
             mediaHolder.getScene().widthProperty();
             mp.setOnReady(new Runnable() {
-
                 ObservableMap<String, Object> mediaMetadata = me.getMetadata();
 
                 @Override
                 public void run() {
                     duration = mp.getMedia().getDuration();
                     update();
-                    if (mediaMetadata.isEmpty()) {
-                        System.out.println("media nem tartalmaz metaadatot");
-                        getMediaTitle(path);
-                    } else {
-                        for (String key : mediaMetadata.keySet()) {
-                            System.out.println(key + " = " + mediaMetadata.get(key));
+                    getMediaTitle(path);
+                    getMediaExtension(path);
 
-                        }
+                    if (mediaMetadata.isEmpty()) {
+                        listOfPlayItems.add(new PlayItem(getMediaTitle(path),
+                                0, 0, null, null, 0,
+                                null, null, null,
+                                TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
+                    } else {
+                        listOfPlayItems.add(new PlayItem(
+                                mediaMetadata.get("title").toString(),
+                                (int) mediaMetadata.get("disc count"),
+                                (int) mediaMetadata.get("track count"),
+                                mediaMetadata.get("artist").toString(),
+                                (Image) mediaMetadata.get("image"),
+                                (int) mediaMetadata.get("year"),
+                                mediaMetadata.get("album").toString(),
+                                mediaMetadata.get("composer").toString(),
+                                mediaMetadata.get("genre").toString(),
+                                TimeFromatConverter.formatTime(duration),
+                                getMediaExtension(path),
+                                path
+                        ));
                     }
+                    obPlayList = FXCollections.observableArrayList(listOfPlayItems);
+                    lvPlayList.setItems(obPlayList);
 
                 }
             });
+
             mp.currentTimeProperty().addListener(new InvalidationListener() {
                 @Override
                 public void invalidated(Observable observable) {
@@ -215,27 +229,50 @@ public class FXMLController implements Initializable {
             });
         }
     }
-    public String getMediaTitle(String in){
-         String temp="";
-         int pos;
-         System.out.println(in);
-         if(in.lastIndexOf("\\")!=-1){
-             pos=in.lastIndexOf("\\");
-             System.out.println(in.lastIndexOf("\\"));
-         }else{
-             pos=in.lastIndexOf("/");
-             System.out.println(in.lastIndexOf("/"));
-         }
+
+    public void writePlayItem(PlayItem item) {
+        System.out.println((item.toString()));
+    }
+
+    public String getMediaExtension(String in) {
+        //használj substringet he
+        String temp;
+        int pos = 0;
+        //System.out.println(in);
+        if (in.lastIndexOf(".") != -1) {
+            pos = in.lastIndexOf(".");
+        }
+
+        temp = in.substring(pos + 1, in.length());
+        System.out.print(temp);
+        return temp;
+
+    }
+
+    public String getMediaTitle(String in) {
+        //használj substringet he
+        String temp = "";
+        int pos;
+        //System.out.println(in);
+        if (in.lastIndexOf("\\") != -1) {
+            pos = in.lastIndexOf("\\");
+            //System.out.println(in.lastIndexOf("\\"));
+        } else {
+            pos = in.lastIndexOf("/");
+            //System.out.println(in.lastIndexOf("/"));
+        }
+        temp = in.substring(pos + 1, in.length());
+        System.out.println(temp);
+        /*
          
         for(int i=pos+1; i<in.length(); i++){
-            System.out.print(in.charAt(i));
-            temp+=in.charAt(i);
-            
-        }
-       return temp;
-        
-       
+            //System.out.print(in.charAt(i));
+            temp+=in.charAt(i);       
+        }*/
+        return temp;
+
     }
+
     @FXML
     private void onPlaylistOpen(ActionEvent event) {
         if (playlistOpen) {
@@ -249,5 +286,4 @@ public class FXMLController implements Initializable {
             lvPlayList.setPrefWidth(0);
         }
     }
-
 }

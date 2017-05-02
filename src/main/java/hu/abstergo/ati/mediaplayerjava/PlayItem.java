@@ -19,7 +19,6 @@ public class PlayItem {
     private int tracNumber;
     private String artist;
     private Image img;
-    private String diskNumber;
     private int year;
     private String album;
     private String composer;
@@ -28,9 +27,23 @@ public class PlayItem {
     private String extension;
     private String uriPath;
 
-    public PlayItem(){
-        
+
+    public PlayItem(String title, int discNumber, int tracNumber, String artist, Image img, int year, String album, String composer, String genre, String lenght, String extension, String uriPath) {
+        this.title = title;
+        this.discNumber = discNumber;
+        this.tracNumber = tracNumber;
+        this.artist = artist;
+        this.img = img;
+        this.year = year;
+        this.album = album;
+        this.composer = composer;
+        this.genre = genre;
+        this.lenght = lenght;
+        this.extension = extension;
+        this.uriPath = uriPath;
     }
+
+   
 
     public String getTitle() {
         return title;
@@ -52,9 +65,7 @@ public class PlayItem {
         return img;
     }
 
-    public String getDiskNumber() {
-        return diskNumber;
-    }
+    
 
     public int getYear() {
         return year;
@@ -104,9 +115,7 @@ public class PlayItem {
         this.img = img;
     }
 
-    public void setDiskNumber(String diskNumber) {
-        this.diskNumber = diskNumber;
-    }
+    
 
     public void setYear(int year) {
         this.year = year;
@@ -135,6 +144,13 @@ public class PlayItem {
     public void setUriPath(String uriPath) {
         this.uriPath = uriPath;
     }
+
+    @Override
+    public String toString() {
+        return "" + title + " "+lenght;
+    }
+
+    
     
 
 }
