@@ -23,8 +23,11 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.util.*;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableMap;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
 public class FXMLController implements Initializable {
@@ -62,8 +65,8 @@ public class FXMLController implements Initializable {
     @FXML
     private Button btnOpenPlaylist;
     @FXML
-    private ListView<?> lvPlayList;
-    
+    private ListView<PlayItem> lvPlayList;
+
     private long timeStamp;
     private Duration duration;
     private DoubleProperty width, height;
@@ -71,8 +74,10 @@ public class FXMLController implements Initializable {
     private Media me;
     public String path;
     private FileChooser fc;
-    private boolean playlistOpen=false;
-  
+    private PlayItemBuilderImpl builder;
+    private boolean playlistOpen = false;
+    @FXML
+    private ImageView imgCover;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -84,6 +89,7 @@ public class FXMLController implements Initializable {
                 .addAll(new FileChooser.ExtensionFilter("Music files", "*.mp3"),
                         new FileChooser.ExtensionFilter("Video Files", "*.mp4")
                 );
+        builder = new PlayItemBuilderImpl();
     }
 
     @FXML
@@ -143,20 +149,27 @@ public class FXMLController implements Initializable {
             mvPlayer.setPreserveRatio(true);
             mvPlayer.autosize();
             volumeSlide.setValue(mp.getVolume() * 100);
-            //mvPlayer.fitWidthProperty().bind(mvPlayer.getScene().widthProperty());
-            //mvPlayer.fitHeightProperty().bind(mvPlayer.getScene().heightProperty());
             mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
             mvPlayer.fitHeightProperty().bind(mediaHolder.heightProperty());
             mediaHolder.getScene().widthProperty();
-            System.out.println(mvPlayer.getFitHeight() + " " + mvPlayer.getFitWidth());
-            System.out.println(mediaHolder.getHeight() + " " + mediaHolder.getWidth());
-            System.out.println(mediaHolder.heightProperty()+" " +  mediaHolder.widthProperty());
-            System.out.println(mediaHolder.getScene().heightProperty()+" " +  mediaHolder.getScene().widthProperty());
             mp.setOnReady(new Runnable() {
+
+                ObservableMap<String, Object> mediaMetadata = me.getMetadata();
+
                 @Override
                 public void run() {
                     duration = mp.getMedia().getDuration();
                     update();
+                    if (mediaMetadata.isEmpty()) {
+                        System.out.println("media nem tartalmaz metaadatot");
+                        getMediaTitle(path);
+                    } else {
+                        for (String key : mediaMetadata.keySet()) {
+                            System.out.println(key + " = " + mediaMetadata.get(key));
+
+                        }
+                    }
+
                 }
             });
             mp.currentTimeProperty().addListener(new InvalidationListener() {
@@ -193,7 +206,7 @@ public class FXMLController implements Initializable {
                 public void run() {
                     Duration jelenlegiIdo = mp.getCurrentTime();
                     double durationToDouble = duration.toMillis();
-                    timerLabel.setText(formatTime(jelenlegiIdo, duration));
+                    timerLabel.setText(TimeFromatConverter.formatTime(jelenlegiIdo, duration));
                     slTimeSlider.setDisable(duration.isUnknown());
                     if (!slTimeSlider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slTimeSlider.isValueChanging()) {
                         slTimeSlider.setValue(jelenlegiIdo.divide(durationToDouble).toMillis() * 100.0);
@@ -202,53 +215,37 @@ public class FXMLController implements Initializable {
             });
         }
     }
-
-    private static String formatTime(Duration elapsed, Duration duration) {
-        int intElapsed = (int) Math.floor(elapsed.toSeconds());
-        int elapsedHours = intElapsed / (60 * 60);
-        if (elapsedHours > 0) {
-            intElapsed -= elapsedHours * 60 * 60;
+    public String getMediaTitle(String in){
+         String temp="";
+         int pos;
+         System.out.println(in);
+         if(in.lastIndexOf("\\")!=-1){
+             pos=in.lastIndexOf("\\");
+             System.out.println(in.lastIndexOf("\\"));
+         }else{
+             pos=in.lastIndexOf("/");
+             System.out.println(in.lastIndexOf("/"));
+         }
+         
+        for(int i=pos+1; i<in.length(); i++){
+            System.out.print(in.charAt(i));
+            temp+=in.charAt(i);
+            
         }
-        int elapsedMinutes = intElapsed / 60;
-        int elapsedSeconds = intElapsed - elapsedHours * 60 * 60 - elapsedMinutes * 60;
-
-        if (duration.greaterThan(Duration.ZERO)) {
-            int intDuration = (int) Math.floor(duration.toSeconds());
-            int durationHours = intDuration / (60 * 60);
-            if (durationHours > 0) {
-                intDuration -= durationHours * 60 * 60;
-            }
-            int durationMinutes = intDuration / 60;
-            int durationSeconds = intDuration - durationHours * 60 * 60
-                    - durationMinutes * 60;
-            if (durationHours > 0) {
-                return String.format("%d:%02d:%02d/%d:%02d:%02d",
-                        elapsedHours, elapsedMinutes, elapsedSeconds,
-                        durationHours, durationMinutes, durationSeconds);
-            } else {
-                return String.format("%02d:%02d/%02d:%02d",
-                        elapsedMinutes, elapsedSeconds, durationMinutes,
-                        durationSeconds);
-            }
-        } else if (elapsedHours > 0) {
-            return String.format("%d:%02d:%02d", elapsedHours,
-                    elapsedMinutes, elapsedSeconds);
-        } else {
-            return String.format("%02d:%02d", elapsedMinutes,
-                    elapsedSeconds);
-        }
+       return temp;
+        
+       
     }
-
     @FXML
     private void onPlaylistOpen(ActionEvent event) {
-        if(playlistOpen){
+        if (playlistOpen) {
             btnOpenPlaylist.setText("Close Playlist");
-            playlistOpen=false;
+            playlistOpen = false;
             lvPlayList.setPrefWidth(100);
-           
-        }else{
+
+        } else {
             btnOpenPlaylist.setText("Open Playlist");
-            playlistOpen=true;
+            playlistOpen = true;
             lvPlayList.setPrefWidth(0);
         }
     }
