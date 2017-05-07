@@ -27,6 +27,13 @@ public class PlayItem {
     private String extension;
     private String uriPath;
 
+    public PlayItem(String title, String lenght, String extension, String uriPath) {
+        this.title = title;
+        this.lenght = lenght;
+        this.extension = extension;
+        this.uriPath = uriPath;
+    }
+
 
     public PlayItem(String title, int discNumber, int tracNumber, String artist, Image img, int year, String album, String composer, String genre, String lenght, String extension, String uriPath) {
         this.title = title;

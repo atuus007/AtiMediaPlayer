@@ -23,11 +23,16 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.util.*;
 import javafx.collections.FXCollections;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
 public class FXMLController implements Initializable {
@@ -87,6 +92,7 @@ public class FXMLController implements Initializable {
                 .addAll(new FileChooser.ExtensionFilter("Music files", "*.mp3"),
                         new FileChooser.ExtensionFilter("Video Files", "*.mp4")
                 );
+        
     }
 
     @FXML
@@ -136,19 +142,12 @@ public class FXMLController implements Initializable {
         if (mvPlayer.getMediaPlayer() != null) {
             mvPlayer.getMediaPlayer().dispose();
         }
+
         if (selectedFile != null) {
-       
+
             path = selectedFile.getAbsolutePath();
-            me = new Media(new File(path).toURI().toString());
-            mp = new MediaPlayer(me);
-            mvPlayer.setMediaPlayer(mp);
-            mp.setAutoPlay(true);
-            mvPlayer.setPreserveRatio(true);
-            mvPlayer.autosize();
-            volumeSlide.setValue(mp.getVolume() * 100);
-            mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
-            mvPlayer.fitHeightProperty().bind(mediaHolder.heightProperty());
-            mediaHolder.getScene().widthProperty();
+            startMediaPlay(path);
+
             mp.setOnReady(new Runnable() {
                 ObservableMap<String, Object> mediaMetadata = me.getMetadata();
 
@@ -156,16 +155,23 @@ public class FXMLController implements Initializable {
                 public void run() {
                     duration = mp.getMedia().getDuration();
                     update();
-                    getMediaTitle(path);
-                    getMediaExtension(path);
-
-                    if (mediaMetadata.isEmpty()) {
-                        listOfPlayItems.add(new PlayItem(getMediaTitle(path),
-                                0, 0, null, null, 0,
-                                null, null, null,
-                                TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
+                    /**/
+ /* if (mediaMetadata.isEmpty()) {
+                        
+                        for (PlayItem i : listOfPlayItems) {
+                            writePlayItem(i);
+                        }
                     } else {
-                        listOfPlayItems.add(new PlayItem(
+
+                        for (String key : mediaMetadata.keySet()) {
+                            if (mediaMetadata.get(key).equals("")) {
+                                System.out.println("null");
+                            } else {
+                                System.out.println(key + " = " + mediaMetadata.get(key));
+                            }
+                        }
+
+                        /*listOfPlayItems.add(new PlayItem(
                                 mediaMetadata.get("title").toString(),
                                 (int) mediaMetadata.get("disc count"),
                                 (int) mediaMetadata.get("track count"),
@@ -180,9 +186,14 @@ public class FXMLController implements Initializable {
                                 path
                         ));
                     }
+                     */
+                    //ConvertMetadata meta=new ConvertMetadata(mediaMetadata);
+                    //System.out.println(meta.getValami());
+                    System.out.println("fasdfasdfasdf");
+                    listOfPlayItems.add(new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
+
                     obPlayList = FXCollections.observableArrayList(listOfPlayItems);
                     lvPlayList.setItems(obPlayList);
-
                 }
             });
 
@@ -210,11 +221,22 @@ public class FXMLController implements Initializable {
                     }
                 }
             });
+            
+            mediaHolder.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                System.out.println(mediaHolder.getWidth());
+                if (playlistOpen) {
+                    mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
+                } 
+            }
+        });
+
         }
     }
 
     public void update() {
-        if (slTimeSlider != null) {
+        if (slTimeSlider != null && timerLabel != null) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -228,6 +250,30 @@ public class FXMLController implements Initializable {
                 }
             });
         }
+        mediaHolder.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                System.out.println(mediaHolder.getWidth());
+                if (playlistOpen) {
+                    //mediaHolder.setPrefWidth(mediaHolder.getWidth()-lvPlayList.getWidth());
+                } 
+            }
+        });
+    }
+
+    public void startMediaPlay(final String path) {
+
+        me = new Media(new File(path).toURI().toString());
+
+        mp = new MediaPlayer(me);
+        mvPlayer.setMediaPlayer(mp);
+        mp.setAutoPlay(true);
+        mvPlayer.setPreserveRatio(true);
+        mvPlayer.autosize();
+        volumeSlide.setValue(mp.getVolume() * 100);
+        mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
+        mvPlayer.fitHeightProperty().bind(mediaHolder.heightProperty());
+
     }
 
     public void writePlayItem(PlayItem item) {
@@ -235,42 +281,25 @@ public class FXMLController implements Initializable {
     }
 
     public String getMediaExtension(String in) {
-        //használj substringet he
         String temp;
         int pos = 0;
-        //System.out.println(in);
         if (in.lastIndexOf(".") != -1) {
             pos = in.lastIndexOf(".");
         }
-
         temp = in.substring(pos + 1, in.length());
-        System.out.print(temp);
         return temp;
-
     }
 
     public String getMediaTitle(String in) {
-        //használj substringet he
-        String temp = "";
+        String temp;
         int pos;
-        //System.out.println(in);
         if (in.lastIndexOf("\\") != -1) {
             pos = in.lastIndexOf("\\");
-            //System.out.println(in.lastIndexOf("\\"));
         } else {
             pos = in.lastIndexOf("/");
-            //System.out.println(in.lastIndexOf("/"));
         }
-        temp = in.substring(pos + 1, in.length());
-        System.out.println(temp);
-        /*
-         
-        for(int i=pos+1; i<in.length(); i++){
-            //System.out.print(in.charAt(i));
-            temp+=in.charAt(i);       
-        }*/
+        temp = in.substring(pos + 1, in.length() - 3);
         return temp;
-
     }
 
     @FXML
@@ -278,7 +307,7 @@ public class FXMLController implements Initializable {
         if (playlistOpen) {
             btnOpenPlaylist.setText("Close Playlist");
             playlistOpen = false;
-            lvPlayList.setPrefWidth(100);
+            lvPlayList.setPrefWidth(150);
 
         } else {
             btnOpenPlaylist.setText("Open Playlist");
