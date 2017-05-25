@@ -13,10 +13,41 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>hu.abstergo.ati.mediaplayerjava.MainApp</mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency> 
+        <dependency> 
+            <groupId>org.slf4j</groupId> 
+            <artifactId>slf4j-api</artifactId> 
+            <version>1.7.21</version> 
+        </dependency> 
+        <dependency> 
+            <groupId>org.slf4j</groupId> 
+            <artifactId>slf4j-jdk14</artifactId> 
+            <version>1.7.21</version> 
+            <scope>runtime</scope> 
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.1.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <organization>
         <!-- Used as the 'Vendor' for JNLP generation -->
-        <name>Your Organisation</name>
+        <name>Abstergo Inc.</name>
     </organization>
 
     <build>
@@ -85,8 +116,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <compilerArguments>
                         <bootclasspath>${sun.boot.class.path}${path.separator}${java.home}/lib/jfxrt.jar</bootclasspath>
                     </compilerArguments>

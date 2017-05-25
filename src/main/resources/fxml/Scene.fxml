@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.media.*?>
-<?import javafx.scene.shape.*?>
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.abstergo.ati.mediaplayerjava.FXMLController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.abstergo.ati.mediaplayerjava.FXMLController">
    <top>
       <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
         <menus>
@@ -81,9 +87,9 @@
       </VBox>
    </bottom>
    <center>
-      <StackPane fx:id="mediaHolder" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <StackPane fx:id="mediaHolder" minHeight="-Infinity" minWidth="-Infinity" prefHeight="463.0" prefWidth="792.0" BorderPane.alignment="CENTER">
          <children>
-            <MediaView fx:id="mvPlayer" fitHeight="300.0" fitWidth="300.0">
+            <MediaView fx:id="mvPlayer" fitHeight="450.0" fitWidth="750.0" onDragDropped="#handleDropFile" onDragOver="#handleDragOverFile">
                <viewport>
                   <Rectangle2D />
                </viewport>

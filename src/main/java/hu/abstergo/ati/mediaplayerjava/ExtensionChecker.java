@@ -9,19 +9,24 @@ package hu.abstergo.ati.mediaplayerjava;
  *
  * @author Ati
  */
-public class ExtensionChecker {
-    public static boolean isGoodExtension(String path){
-        String temp;
-        int pos = 0;
-        if (path.lastIndexOf(".") != -1) {
-            pos = path.lastIndexOf(".");
-        }
-        temp = path.substring(pos + 1, path.length());
-        if(temp.equals("mp3")|| temp.equals("mp4")){
-            return true;
-        }else {
-            return false;
-        }
+public class ExtensionChecker implements IExtensionFinder{
+    public boolean isGoodExtension(String path){
+        String ext=getMediaExtension(path);
         
+        return (ext.contains("mp3")|| ext.contains("mp4"));
+              
     }
+
+    @Override
+    public String getMediaExtension(String in) {
+        String temp="";
+        int pos;
+        if (in.lastIndexOf(".") != -1) {
+            pos = in.lastIndexOf(".");
+            temp = in.substring(pos + 1, in.length());
+        }
+        return temp;
+    }
+
+  
 }
