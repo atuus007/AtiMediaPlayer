@@ -6,11 +6,15 @@
 package hu.abstergo.ati.mediaplayerjava;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -29,9 +33,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Fodor Edit
  */
-public class MediaModell implements IExtensionFinder{
+public class MediaModell implements IExtensionFinder {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MediaModell.class);
+
     private FileChooser fc;
     private Media me;
     private MediaPlayer mp;
@@ -41,10 +46,15 @@ public class MediaModell implements IExtensionFinder{
     private Label mmTime;
     private StackPane mHolder;
     private Duration duration;
-    private boolean openList = false;
-    
 
-    public MediaModell(final MediaView mv, final Slider status, final Slider volume, final Label time, final StackPane mediaHolder) {
+    private boolean openList = false;
+    private String path;
+    private long timeStamp;
+    private ObservableList<PlayItem> obPlayList;
+    private ListView<PlayItem> lvPlayList;
+    private final List<PlayItem> listOfPlayItems = new ArrayList<>();
+
+    public MediaModell(final MediaView mv, final Slider status, final Slider volume, final Label time, final StackPane mediaHolder, final ListView<PlayItem> lvPlayList) {
         //logger.info(mv.getId());
         //mv.setId("fasdfasdfasdfasdfasdfasdfasfasfdasdf");
         //logger.info("mmView "+mv.getId());
@@ -52,7 +62,8 @@ public class MediaModell implements IExtensionFinder{
         this.mmStatus = status;
         this.mmVolume = volume;
         this.mmTime = time;
-        this.mHolder=mediaHolder;
+        this.mHolder = mediaHolder;
+        this.lvPlayList = lvPlayList;
         initExtensionFilter();
 
         //logger.info("mmView "+mmView.getId());
@@ -67,7 +78,7 @@ public class MediaModell implements IExtensionFinder{
     }
 
     public void openFileChooser() {
-        String path;
+
         File selectedFile = fc.showOpenDialog(null);
         logger.info("openFileChooser");
         if (selectedFile != null) {
@@ -112,12 +123,24 @@ public class MediaModell implements IExtensionFinder{
             btnOpenPlaylist.setText("Close Playlist");
             openList = false;
             lvPlayList.setPrefWidth(150);
+            mmView.fitWidthProperty().bind(mHolder.widthProperty().subtract(lvPlayList.getPrefWidth()));
+//            boundMediaView();
 
         } else {
             btnOpenPlaylist.setText("Open Playlist");
             openList = true;
+
             lvPlayList.setPrefWidth(0);
+            mmView.fitWidthProperty().bind(mHolder.widthProperty());
+//            boundMediaView();
         }
+    }
+
+    private void boundMediaView() {
+
+        mmView.fitWidthProperty().bind(mHolder.widthProperty());
+        mmView.fitHeightProperty().bind(mHolder.heightProperty());
+
     }
 
     public String getMediaTitle(String in) {
@@ -144,8 +167,8 @@ public class MediaModell implements IExtensionFinder{
         mmView.autosize();
         initListeners();
 
-//        volumeSlide.setValue(mp.getVolume() * 100);
-//        boundMediaView();
+        mmVolume.setValue(mp.getVolume() * 100);
+        boundMediaView();
     }
 
     public void mmStopMediaPlay() {
@@ -165,15 +188,18 @@ public class MediaModell implements IExtensionFinder{
                 }
             });
         }
-//        mediaHolder.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-//            System.out.println(mediaHolder.getWidth());
-//            if (playlistOpen) {
-//                //mediaHolder.setPrefWidth(mediaHolder.getWidth()-lvPlayList.getWidth());
+//        mHolder.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+//            System.out.println(mHolder.getWidth());
+//            if (openList) {
+//                mHolder.setPrefWidth(mmView.getFitWidth() - 150);
+//                mHolder.setPrefHeight(mmView.getFitHeight() - 150);
+//
 //            }
 //        });
     }
 
     public void initListeners() {
+        logger.info("initListeners");
         mp.setOnReady(new Runnable() {
             ObservableMap<String, Object> mediaMetadata = me.getMetadata();
 
@@ -182,9 +208,12 @@ public class MediaModell implements IExtensionFinder{
                 duration = mp.getMedia().getDuration();
                 update();
 
-//                listOfPlayItems.add(new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
-//                obPlayList = FXCollections.observableArrayList(listOfPlayItems);
-//                lvPlayList.setItems(obPlayList);
+                listOfPlayItems.add(new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
+                obPlayList = FXCollections.observableArrayList(listOfPlayItems);
+                lvPlayList.setItems(obPlayList);
+                for (PlayItem p : listOfPlayItems) {
+                    logger.info(p.getTitle());
+                }
             }
         });
 
@@ -212,20 +241,17 @@ public class MediaModell implements IExtensionFinder{
                 }
             }
         });
-//
-//        mediaHolder.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-//            System.out.println(mediaHolder.getWidth());
-//            if (playlistOpen) {
-//                mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
+
+        mHolder.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+
+            logger.info("stackPane width: " + mHolder.getWidth());
+//            if (openList) {
+//                mmView.fitWidthProperty().bind(mHolder.widthProperty());
 //            }
-//        });
+        });
 
     }
 
-    private void boundMediaView() {
-//        mvPlayer.fitWidthProperty().bind(mediaHolder.widthProperty());
-//        mvPlayer.fitHeightProperty().bind(mediaHolder.heightProperty());
-    }
     @Override
     public String getMediaExtension(String in) {
         String temporal;

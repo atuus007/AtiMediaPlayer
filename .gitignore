@@ -1,1 +1,8 @@
-/target/
+.classpath
+.project
+.settings/
+target/
+.gitignore~
+nbactions.xml
+nb-configuration.xml
+/nbproject/
