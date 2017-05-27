@@ -140,12 +140,8 @@ public class FXMLController implements Initializable {
     @FXML
     private void handleDropFile(DragEvent event) {
 
-//        List<File> files = event.getDragboard().getFiles();
-//        String filePath = files.get(0).toString();
-//        ExtensionChecker ch = new ExtensionChecker();
-//        if (ch.isGoodExtension(filePath)) {
-//            startMediaPlay(filePath);
-//        }
+        List<File> files = event.getDragboard().getFiles();
+        mmModel.dragAndDrop(files);
     }
 
     @FXML

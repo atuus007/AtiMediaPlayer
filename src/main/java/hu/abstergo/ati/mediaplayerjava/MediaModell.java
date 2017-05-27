@@ -82,10 +82,8 @@ public class MediaModell implements IExtensionFinder {
         File selectedFile = fc.showOpenDialog(null);
         logger.info("openFileChooser");
         if (selectedFile != null) {
-
             path = selectedFile.getAbsolutePath();
             startMediaPlay(path);
-
         }
     }
 
@@ -110,21 +108,27 @@ public class MediaModell implements IExtensionFinder {
         if (status == Status.PAUSED || Status.READY == status || status == Status.STOPPED) {
             mmView.getMediaPlayer().setRate(1);
             mmView.getMediaPlayer().play();
-
         }
     }
 
     public void mmFasterPlay() {
         mmView.getMediaPlayer().setRate(2);
     }
-
-    public void mmOpenPlaylist(Button btnOpenPlaylist, ListView<PlayItem> lvPlayList) {
+    public void dragAndDrop(List<File> files){
+        String filePath = files.get(0).toString();
+        logger.info(""+filePath);
+        ExtensionChecker ch = new ExtensionChecker();
+        if (ch.isGoodExtension(filePath)) {
+            logger.info(""+filePath);
+            startMediaPlay(filePath);
+        }
+    }
+    public void mmOpenPlaylist(final Button btnOpenPlaylist, final ListView<PlayItem> lvPlayList) {
         if (openList) {
             btnOpenPlaylist.setText("Close Playlist");
             openList = false;
             lvPlayList.setPrefWidth(150);
             mmView.fitWidthProperty().bind(mHolder.widthProperty().subtract(lvPlayList.getPrefWidth()));
-//            boundMediaView();
 
         } else {
             btnOpenPlaylist.setText("Open Playlist");
@@ -132,7 +136,7 @@ public class MediaModell implements IExtensionFinder {
 
             lvPlayList.setPrefWidth(0);
             mmView.fitWidthProperty().bind(mHolder.widthProperty());
-//            boundMediaView();
+
         }
     }
 
@@ -146,8 +150,12 @@ public class MediaModell implements IExtensionFinder {
     public String getMediaTitle(String in) {
         String temp;
         int pos;
+        
+        logger.info(in);
         if (in.lastIndexOf("\\") != -1) {
+       
             pos = in.lastIndexOf("\\");
+            logger.info(""+pos);
         } else {
             pos = in.lastIndexOf("/");
         }
@@ -155,17 +163,31 @@ public class MediaModell implements IExtensionFinder {
         return temp;
     }
 
+    public void addPlayElement(final String path) {
+        logger.info(""+path);
+        listOfPlayItems.add(new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
+        obPlayList = FXCollections.observableArrayList(listOfPlayItems);
+        lvPlayList.setItems(obPlayList);
+        listOfPlayItems.forEach((p) -> {
+            logger.info(p.getTitle());
+        });
+    }
+
     public void startMediaPlay(final String path) {
+        logger.info(path);
         if (mmView.getMediaPlayer() != null) {
             mmView.getMediaPlayer().dispose();
         }
         me = new Media(new File(path).toURI().toString());
         mp = new MediaPlayer(me);
+        initListeners();
+        //addPlayElement(path);
         mp.setAutoPlay(true);
         mmView.setMediaPlayer(mp);
         mmView.setPreserveRatio(true);
         mmView.autosize();
-        initListeners();
+       
+        
 
         mmVolume.setValue(mp.getVolume() * 100);
         boundMediaView();
@@ -188,20 +210,12 @@ public class MediaModell implements IExtensionFinder {
                 }
             });
         }
-//        mHolder.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-//            System.out.println(mHolder.getWidth());
-//            if (openList) {
-//                mHolder.setPrefWidth(mmView.getFitWidth() - 150);
-//                mHolder.setPrefHeight(mmView.getFitHeight() - 150);
-//
-//            }
-//        });
     }
 
     public void initListeners() {
         logger.info("initListeners");
         mp.setOnReady(new Runnable() {
-            ObservableMap<String, Object> mediaMetadata = me.getMetadata();
+//            ObservableMap<String, Object> mediaMetadata = me.getMetadata();
 
             @Override
             public void run() {
@@ -211,45 +225,27 @@ public class MediaModell implements IExtensionFinder {
                 listOfPlayItems.add(new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
                 obPlayList = FXCollections.observableArrayList(listOfPlayItems);
                 lvPlayList.setItems(obPlayList);
-                for (PlayItem p : listOfPlayItems) {
+                listOfPlayItems.forEach((p) -> {
                     logger.info(p.getTitle());
-                }
+                });
             }
         });
 
-        mp.currentTimeProperty().addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                update();
+        mp.currentTimeProperty().addListener((Observable observable) -> {
+            update();
+        });
+        mmStatus.valueProperty().addListener((Observable observable) -> {
+            if (mmStatus.isValueChanging()) {
+                mp.seek(duration.multiply(mmStatus.getValue() / 100));
             }
         });
-        mmStatus.valueProperty().addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                if (mmStatus.isValueChanging()) {
-                    mp.seek(duration.multiply(mmStatus.getValue() / 100));
-                }
-            }
-        });
-        mmVolume.valueProperty().addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                if (mmVolume.isValueChanging()) {
-                    mmView.getMediaPlayer().setVolume(mmVolume.getValue() / 100);
-                    double volume = mmView.getMediaPlayer().getVolume() * 100;
+        mmVolume.valueProperty().addListener((Observable observable) -> {
+            if (mmVolume.isValueChanging()) {
+                mmView.getMediaPlayer().setVolume(mmVolume.getValue() / 100);
+                double volume = mmView.getMediaPlayer().getVolume() * 100;
 //                    lbSound.setText(Integer.toString((int) volume));
-                }
             }
         });
-
-        mHolder.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-
-            logger.info("stackPane width: " + mHolder.getWidth());
-//            if (openList) {
-//                mmView.fitWidthProperty().bind(mHolder.widthProperty());
-//            }
-        });
-
     }
 
     @Override
