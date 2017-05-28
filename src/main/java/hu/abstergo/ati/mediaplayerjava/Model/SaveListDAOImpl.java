@@ -35,11 +35,13 @@ import org.xml.sax.SAXException;
  *
  * @author Fodor Edit
  */
-public class SaveList {
+public class SaveListDAOImpl implements SaveFileDAO{
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SaveList.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SaveListDAOImpl.class);
 
-    public static void saveList(List<PlayItem> items) {
+    
+    @Override
+    public void saveList(List<PlayItem> items) {
 
         logger.info(items.get(0).toString());
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -97,12 +99,13 @@ public class SaveList {
             }
             transformer.transform(source, fileRsult);
         } catch (TransformerConfigurationException ex) {
-            Logger.getLogger(SaveList.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SaveListDAOImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TransformerException ex) {
-            Logger.getLogger(SaveList.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SaveListDAOImpl.class.getName()).log(Level.SEVERE, null, ex);
         }              
     }
-    public static List<PlayItem> loadItems(){
+    @Override
+    public List<PlayItem> loadItems(){
         List<PlayItem> media=new ArrayList<>();
         DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
            
@@ -115,29 +118,35 @@ public class SaveList {
             doc.normalize();
             
             NodeList nodeList = doc.getElementsByTagName("Media");
+            logger.info("AAAAAAAAAAAAAAAAAAAA "+nodeList.getLength());
+          
+           
+               
             for(int i=0; i<nodeList.getLength(); i++){
                 Node node = nodeList.item(i);
                 Element element =(Element)node;
                 
                 
-                logger.info("Betolt: "+element.getElementsByTagName("Title").item(i).getTextContent());
-                logger.info("Betolt: "+element.getElementsByTagName("Length").item(i).getTextContent());
-                logger.info("Betolt: "+element.getElementsByTagName("Path").item(i).getTextContent());
-                logger.info("Betolt: "+element.getElementsByTagName("Extension").item(i).getTextContent());
-                String title=element.getElementsByTagName("Title").item(i).getTextContent();
-                String length=element.getElementsByTagName("Length").item(i).getTextContent();
-                String path=element.getElementsByTagName("Path").item(i).getTextContent();
-                String ext=element.getElementsByTagName("Extension").item(i).getTextContent();
+                
+                logger.info("Betolt: "+element.getElementsByTagName("Length").item(0).getTextContent());
+                logger.info("Betolt: "+element.getElementsByTagName("Path").item(0).getTextContent());
+                logger.info("Betolt: "+element.getElementsByTagName("Extension").item(0).getTextContent());
+                
+                String title=element.getElementsByTagName("Title").item(0).getTextContent();
+                String length=element.getElementsByTagName("Length").item(0).getTextContent();
+                String path=element.getElementsByTagName("Path").item(0).getTextContent();
+                String ext=element.getElementsByTagName("Extension").item(0).getTextContent();
+                
                 PlayItem init=new PlayItem(title, length, ext, path);
                 media.add(init);
             }
             //return null;
         } catch (ParserConfigurationException ex) {
-            Logger.getLogger(SaveList.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SaveListDAOImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {
-            Logger.getLogger(SaveList.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SaveListDAOImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(SaveList.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SaveListDAOImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         return media;
     }

@@ -59,11 +59,10 @@ public class MediaModell implements IExtensionFinder {
     private ObservableList<PlayItem> obPlayList;
     private ListView<PlayItem> lvPlayList;
     private List<PlayItem> listOfPlayItems = new ArrayList<>();
+    private SaveFileDAO saveAndLoad;
 
     public MediaModell(final MediaView mv, final Slider status, final Slider volume, final Label time, final Label lbVol, final StackPane mediaHolder, final ListView<PlayItem> lvPlayList) {
-        //logger.info(mv.getId());
-        //mv.setId("fasdfasdfasdfasdfasdfasdfasfasfdasdf");
-        //logger.info("mmView "+mv.getId());
+
         this.mmView = mv;
         this.mmStatus = status;
         this.mmVolume = volume;
@@ -72,6 +71,7 @@ public class MediaModell implements IExtensionFinder {
         this.lvPlayList = lvPlayList;
         this.mmVol = lbVol;
         lvPlayList.setPrefWidth(150);
+        saveAndLoad=new SaveListDAOImpl();
         initExtensionFilter();
         initPlayList();
 
@@ -88,7 +88,9 @@ public class MediaModell implements IExtensionFinder {
     }
 
     public void initPlayList() {
-        listOfPlayItems = SaveList.loadItems();
+
+        listOfPlayItems = saveAndLoad.loadItems();
+//
         obPlayList = FXCollections.observableArrayList(listOfPlayItems);
         lvPlayList.setItems(obPlayList);
     }
@@ -276,7 +278,8 @@ public class MediaModell implements IExtensionFinder {
     }
 
     public void executeSave() {
-        SaveList.saveList(listOfPlayItems);
+
+        saveAndLoad.saveList(listOfPlayItems);
     }
 
 }

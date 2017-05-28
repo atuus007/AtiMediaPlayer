@@ -13,7 +13,7 @@ public class ExtensionChecker implements IExtensionFinder{
     public boolean isGoodExtension(String path){
         String ext=getMediaExtension(path);
         
-        return (ext.contains("mp3")|| ext.contains("mp4")||ext.contains("flv"));
+        return (ext.contains("mp3")|| ext.contains("mp4")||ext.contains("flv")||ext.contains("wav"));
               
     }
 

@@ -20,19 +20,6 @@ public class PlayItem {
     private String extension;
     private String uriPath;
  
-    
-//    private int discNumber;
-//    private int tracNumber;
-//    private String artist;
-//    private Image img;
-//    private int year;
-//    private String album;
-//    private String composer;
-//    private String genre;
-//    
-    
-    
-
     public PlayItem(String title, String lenght, String extension, String uriPath) {
         this.title = title;
         this.lenght = lenght;
@@ -41,49 +28,10 @@ public class PlayItem {
        
     }
 
-
-    
-
-   
-
     public String getTitle() {
         return title;
     }
-
-//    public int getDiscNumber() {
-//        return discNumber;
-//    }
-//
-//    public int getTracNumber() {
-//        return tracNumber;
-//    }
-//
-//    public String getArtist() {
-//        return artist;
-//    }
-//
-//    public Image getImg() {
-//        return img;
-//    }
-//
-//    
-//
-//    public int getYear() {
-//        return year;
-//    }
-//
-//    public String getAlbum() {
-//        return album;
-//    }
-//
-//    public String getComposer() {
-//        return composer;
-//    }
-//
-//    public String getGenre() {
-//        return genre;
-//    }
-
+    
     public String getLenght() {
         return lenght;
     }
@@ -99,40 +47,6 @@ public class PlayItem {
     public void setTitle(String title) {
         this.title = title;
     }
-
-//    public void setDiscNumber(int discNumber) {
-//        this.discNumber = discNumber;
-//    }
-//
-//    public void setTracNumber(int tracNumber) {
-//        this.tracNumber = tracNumber;
-//    }
-//
-//    public void setArtist(String artist) {
-//        this.artist = artist;
-//    }
-//
-//    public void setImg(Image img) {
-//        this.img = img;
-//    }
-//
-//    
-//
-//    public void setYear(int year) {
-//        this.year = year;
-//    }
-//
-//    public void setAlbum(String album) {
-//        this.album = album;
-//    }
-//
-//    public void setComposer(String composer) {
-//        this.composer = composer;
-//    }
-//
-//    public void setGenre(String genre) {
-//        this.genre = genre;
-//    }
 
     public void setLenght(String lenght) {
         this.lenght = lenght;
