@@ -29,14 +29,14 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem fx:id="mnAbout" mnemonicParsing="false" onAction="#startAbout" text="About" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
    </top>
    <right>
-      <ListView fx:id="lvPlayList" onMouseClicked="#listMouseClick" prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
+      <ListView fx:id="lvPlayList" onKeyPressed="#onKeyPressed" onMouseClicked="#listMouseClick" prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
    </right>
    <bottom>
       <VBox prefHeight="106.0" prefWidth="678.0" BorderPane.alignment="CENTER">

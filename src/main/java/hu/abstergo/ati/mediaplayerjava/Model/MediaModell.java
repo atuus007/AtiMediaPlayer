@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Fodor Edit
+ * @author Ati
  */
 public class MediaModell implements IExtensionFinder {
 
@@ -45,6 +45,7 @@ public class MediaModell implements IExtensionFinder {
     private Slider mmStatus;
     private Slider mmVolume;
     private Label mmTime;
+    private Label mmVol;
     private StackPane mHolder;
     private Duration duration;
 
@@ -55,7 +56,7 @@ public class MediaModell implements IExtensionFinder {
     private ListView<PlayItem> lvPlayList;
     private final List<PlayItem> listOfPlayItems = new ArrayList<>();
 
-    public MediaModell(final MediaView mv, final Slider status, final Slider volume, final Label time, final StackPane mediaHolder, final ListView<PlayItem> lvPlayList) {
+    public MediaModell(final MediaView mv, final Slider status, final Slider volume, final Label time, final Label lbVol, final StackPane mediaHolder, final ListView<PlayItem> lvPlayList) {
         //logger.info(mv.getId());
         //mv.setId("fasdfasdfasdfasdfasdfasdfasfasfdasdf");
         //logger.info("mmView "+mv.getId());
@@ -65,6 +66,7 @@ public class MediaModell implements IExtensionFinder {
         this.mmTime = time;
         this.mHolder = mediaHolder;
         this.lvPlayList = lvPlayList;
+        this.mmVol = lbVol;
         lvPlayList.setPrefWidth(150);
         initExtensionFilter();
     }
@@ -80,12 +82,43 @@ public class MediaModell implements IExtensionFinder {
     }
 
     public void openFileChooser() {
-
+        String localPath;
         File selectedFile = fc.showOpenDialog(null);
-        logger.info("openFileChooser");
+
         if (selectedFile != null) {
-            path = selectedFile.getAbsolutePath();
-            startMediaPlay(path);
+            localPath = selectedFile.getAbsolutePath();
+            logger.info("openFileChooser: " + localPath);
+            startMediaPlay(localPath);
+        }
+    }
+
+    public void startMediaPlay(final String inPath) {
+        logger.info("startMediaPlay: " + inPath);
+        path = inPath;
+        if (mmView.getMediaPlayer() != null) {
+            mmView.getMediaPlayer().dispose();
+        }
+        me = new Media(new File(path).toURI().toString());
+        mp = new MediaPlayer(me);
+        initListeners();
+        boundMediaView();
+        mp.setAutoPlay(true);
+        mmView.setMediaPlayer(mp);
+
+        mmView.setPreserveRatio(true);
+        mmView.autosize();
+
+        mmVolume.setValue(mp.getVolume() * 100);
+
+    }
+
+    public void dragAndDrop(List<File> files) {
+        String filePath = files.get(0).toString();
+        logger.info("" + filePath);
+        ExtensionChecker ch = new ExtensionChecker();
+        if (ch.isGoodExtension(filePath)) {
+            logger.info("" + filePath);
+            startMediaPlay(filePath);
         }
     }
 
@@ -117,16 +150,6 @@ public class MediaModell implements IExtensionFinder {
         mmView.getMediaPlayer().setRate(2);
     }
 
-    public void dragAndDrop(List<File> files) {
-        String filePath = files.get(0).toString();
-        logger.info("" + filePath);
-        ExtensionChecker ch = new ExtensionChecker();
-        if (ch.isGoodExtension(filePath)) {
-            logger.info("" + filePath);
-            startMediaPlay(filePath);
-        }
-    }
-
     public void mPlayistControl(final Button btnOpenPlaylist, final ListView<PlayItem> lvPlayList) {
         if (openList) {
             btnOpenPlaylist.setText("Close Playlist");
@@ -145,7 +168,7 @@ public class MediaModell implements IExtensionFinder {
     private void boundMediaView() {
         mmView.fitHeightProperty().bind(mHolder.heightProperty());
 //        if (openList) {
-            mmView.fitWidthProperty().bind(mHolder.widthProperty().subtract(lvPlayList.getPrefWidth()));
+        mmView.fitWidthProperty().bind(mHolder.widthProperty().subtract(lvPlayList.getPrefWidth()));
 //        } else {
 //            mmView.fitWidthProperty().bind(mHolder.widthProperty());
 //        }
@@ -164,39 +187,8 @@ public class MediaModell implements IExtensionFinder {
         } else {
             pos = in.lastIndexOf("/");
         }
-        temp = in.substring(pos + 1, in.length() - 3);
+        temp = in.substring(pos + 1, in.length() - 4);
         return temp;
-    }
-
-    public void addPlayElement(final String path) {
-        logger.info("" + path);
-        PlayItem pl = new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path);
-        listOfPlayItems.add(pl);
-        obPlayList = FXCollections.observableArrayList(listOfPlayItems);
-        lvPlayList.setItems(obPlayList);
-        listOfPlayItems.forEach((p) -> {
-            logger.info(p.getTitle());
-        });
-    }
-
-    public void startMediaPlay(final String inPath) {
-        logger.info(path);
-        path=inPath;
-        if (mmView.getMediaPlayer() != null) {
-            mmView.getMediaPlayer().dispose();
-        }
-        me = new Media(new File(path).toURI().toString());
-        mp = new MediaPlayer(me);
-        initListeners();
-        boundMediaView();
-        //addPlayElement(path);
-        mp.setAutoPlay(true);
-        mmView.setMediaPlayer(mp);
-        mmView.setPreserveRatio(true);
-        mmView.autosize();
-
-        mmVolume.setValue(mp.getVolume() * 100);
-
     }
 
     public void mmStopMediaPlay() {
@@ -228,9 +220,8 @@ public class MediaModell implements IExtensionFinder {
                 duration = mp.getMedia().getDuration();
                 update();
                 PlayItem pl = new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path);
-                logger.info(pl.toString());
+                SaveList.saveList(pl);
                 listOfPlayItems.add(pl);
-//                listOfPlayItems.add(new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path));
                 obPlayList = FXCollections.observableArrayList(listOfPlayItems);
                 lvPlayList.setItems(obPlayList);
                 listOfPlayItems.forEach((p) -> {
@@ -251,7 +242,7 @@ public class MediaModell implements IExtensionFinder {
             if (mmVolume.isValueChanging()) {
                 mmView.getMediaPlayer().setVolume(mmVolume.getValue() / 100);
                 double volume = mmView.getMediaPlayer().getVolume() * 100;
-//                    lbSound.setText(Integer.toString((int) volume));
+                mmVol.setText(Integer.toString((int) volume));
             }
         });
     }
@@ -266,13 +257,10 @@ public class MediaModell implements IExtensionFinder {
         temporal = in.substring(pos + 1, in.length());
         return temporal;
     }
-    public void sfadfasfdafdas(){
-        lvPlayList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PlayItem>() {
-            @Override
-            public void changed(ObservableValue<? extends PlayItem> observable, PlayItem oldValue, PlayItem newValue) {
-                logger.info(newValue.getUriPath());
-            }
-        });
+
+    public void startPressEnter() {
+        PlayItem item = lvPlayList.getSelectionModel().getSelectedItem();
+        startMediaPlay(item.getUriPath());
         //
     }
 
