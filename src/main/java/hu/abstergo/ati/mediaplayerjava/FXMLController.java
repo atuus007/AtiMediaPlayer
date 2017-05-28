@@ -1,5 +1,7 @@
 package hu.abstergo.ati.mediaplayerjava;
 
+import hu.abstergo.ati.mediaplayerjava.Model.PlayItem;
+import hu.abstergo.ati.mediaplayerjava.Model.MediaModell;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,6 +36,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -134,7 +137,7 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void onPlaylistOpen(ActionEvent event) {
-        mmModel.mmOpenPlaylist(btnOpenPlaylist, lvPlayList);
+        //mmModel.mPlayistControl(btnOpenPlaylist, lvPlayList);
     }
 
     @FXML
@@ -149,5 +152,15 @@ public class FXMLController implements Initializable {
         if (event.getDragboard().hasFiles()) {
             event.acceptTransferModes(TransferMode.ANY);
         }
+    }
+
+    @FXML
+    private void listMouseClick(MouseEvent event) {
+       mmModel.sfadfasfdafdas();
+    }
+
+    @FXML
+    private void onCloseApp(ActionEvent event) {
+        Platform.exit();
     }
 }

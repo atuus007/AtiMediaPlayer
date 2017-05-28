@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.abstergo.ati.mediaplayerjava;
+package hu.abstergo.ati.mediaplayerjava.Model;
 
 /**
  *
@@ -13,7 +13,7 @@ public class ExtensionChecker implements IExtensionFinder{
     public boolean isGoodExtension(String path){
         String ext=getMediaExtension(path);
         
-        return (ext.contains("mp3")|| ext.contains("mp4"));
+        return (ext.contains("mp3")|| ext.contains("mp4")||ext.contains("flv"));
               
     }
 

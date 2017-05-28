@@ -24,7 +24,7 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem fx:id="mnOpen" mnemonicParsing="false" onAction="#openMenuAction" text="Open" />
-                  <MenuItem mnemonicParsing="false" text="Close" />
+                  <MenuItem mnemonicParsing="false" onAction="#onCloseApp" text="Close" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -36,7 +36,7 @@
       </MenuBar>
    </top>
    <right>
-      <ListView fx:id="lvPlayList" prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
+      <ListView fx:id="lvPlayList" onMouseClicked="#listMouseClick" prefHeight="429.0" prefWidth="0.0" BorderPane.alignment="CENTER" />
    </right>
    <bottom>
       <VBox prefHeight="106.0" prefWidth="678.0" BorderPane.alignment="CENTER">
