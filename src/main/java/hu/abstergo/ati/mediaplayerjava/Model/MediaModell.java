@@ -6,8 +6,10 @@
 package hu.abstergo.ati.mediaplayerjava.Model;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -28,7 +30,9 @@ import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import javafx.scene.media.MediaPlayer.Status;
+import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -54,7 +58,7 @@ public class MediaModell implements IExtensionFinder {
     private long timeStamp;
     private ObservableList<PlayItem> obPlayList;
     private ListView<PlayItem> lvPlayList;
-    private final List<PlayItem> listOfPlayItems = new ArrayList<>();
+    private List<PlayItem> listOfPlayItems = new ArrayList<>();
 
     public MediaModell(final MediaView mv, final Slider status, final Slider volume, final Label time, final Label lbVol, final StackPane mediaHolder, final ListView<PlayItem> lvPlayList) {
         //logger.info(mv.getId());
@@ -69,6 +73,8 @@ public class MediaModell implements IExtensionFinder {
         this.mmVol = lbVol;
         lvPlayList.setPrefWidth(150);
         initExtensionFilter();
+        initPlayList();
+
     }
 
     public void initExtensionFilter() {
@@ -79,6 +85,12 @@ public class MediaModell implements IExtensionFinder {
                         new FileChooser.ExtensionFilter("Flash Video Files", "*.flv"),
                         new FileChooser.ExtensionFilter("Waveform Audio Format", "*.wav")
                 );
+    }
+
+    public void initPlayList() {
+        listOfPlayItems = SaveList.loadItems();
+        obPlayList = FXCollections.observableArrayList(listOfPlayItems);
+        lvPlayList.setItems(obPlayList);
     }
 
     public void openFileChooser() {
@@ -113,7 +125,7 @@ public class MediaModell implements IExtensionFinder {
     }
 
     public void dragAndDrop(List<File> files) {
-        String filePath = files.get(0).toString();
+        String filePath = files.get(0).getAbsolutePath();
         logger.info("" + filePath);
         ExtensionChecker ch = new ExtensionChecker();
         if (ch.isGoodExtension(filePath)) {
@@ -217,16 +229,15 @@ public class MediaModell implements IExtensionFinder {
 
             @Override
             public void run() {
+                logger.info("public void run() {");
                 duration = mp.getMedia().getDuration();
                 update();
                 PlayItem pl = new PlayItem(getMediaTitle(path), TimeFromatConverter.formatTime(duration), getMediaExtension(path), path);
-                SaveList.saveList(pl);
+
                 listOfPlayItems.add(pl);
                 obPlayList = FXCollections.observableArrayList(listOfPlayItems);
                 lvPlayList.setItems(obPlayList);
-                listOfPlayItems.forEach((p) -> {
-                    logger.info(p.getTitle());
-                });
+
             }
         });
 
@@ -262,6 +273,10 @@ public class MediaModell implements IExtensionFinder {
         PlayItem item = lvPlayList.getSelectionModel().getSelectedItem();
         startMediaPlay(item.getUriPath());
         //
+    }
+
+    public void executeSave() {
+        SaveList.saveList(listOfPlayItems);
     }
 
 }

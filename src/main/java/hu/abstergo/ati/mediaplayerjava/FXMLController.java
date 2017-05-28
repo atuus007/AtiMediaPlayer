@@ -167,6 +167,7 @@ public class FXMLController implements Initializable {
 
     @FXML
     private void onCloseApp(ActionEvent event) {
+        mmModel.executeSave();
         Platform.exit();
     }
 
